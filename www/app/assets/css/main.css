@@ -1,0 +1,273 @@
+@import "tailwindcss" theme(static);
+@import "@nuxt/ui";
+
+@theme static {
+  /* Primary palette — rose gold */
+  --color-rose-gold-50: #fdf6f3;
+  --color-rose-gold-100: #faeae4;
+  --color-rose-gold-200: #f5d4c8;
+  --color-rose-gold-300: #e8b5a1;
+  --color-rose-gold-400: #d6a28a;
+  --color-rose-gold-500: #c4876b;
+  --color-rose-gold-600: #a96a50;
+  --color-rose-gold-700: #8d5541;
+  --color-rose-gold-800: #754839;
+  --color-rose-gold-900: #624033;
+  --color-rose-gold-950: #341f18;
+}
+
+@theme {
+  --font-sans: 'Forum', system-ui, sans-serif;
+  --font-display: 'Italiana', serif;
+}
+
+/* Refined heading treatment */
+h1, h2, h3, h4, h5, h6 {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Smooth scroll for anchor links */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ─── Hero video background ─── */
+.hero-video-section {
+  position: relative;
+  overflow: hidden;
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(52, 31, 24, 0.55) 0%,
+    rgba(52, 31, 24, 0.70) 50%,
+    rgba(52, 31, 24, 0.85) 100%
+  );
+}
+
+/* ─── Subtle animated gradient fallback (no-video / poster) ─── */
+@keyframes shimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.bg-shimmer {
+  background: linear-gradient(135deg, #fdf6f3 0%, #faeae4 25%, #f5d4c8 50%, #faeae4 75%, #fdf6f3 100%);
+  background-size: 300% 300%;
+  animation: shimmer 12s ease-in-out infinite;
+}
+
+:is(.dark .bg-shimmer) {
+  background: linear-gradient(135deg, #341f18 0%, #624033 25%, #754839 50%, #624033 75%, #341f18 100%);
+}
+
+/* ─── Section divider — glowing orbs ─── */
+@keyframes orb-breathe {
+  0%, 100% { transform: scale(1);   opacity: 0.5; }
+  50%      { transform: scale(1.2); opacity: 0.8; }
+}
+
+@keyframes orb-drift-1 {
+  0%, 100% { transform: translate(0, 0)     scale(1);   opacity: 0.4; }
+  33%      { transform: translate(6px, -4px) scale(1.1); opacity: 0.65; }
+  66%      { transform: translate(-4px, 3px) scale(0.95); opacity: 0.5; }
+}
+
+@keyframes orb-drift-2 {
+  0%, 100% { transform: translate(0, 0)      scale(1);   opacity: 0.3; }
+  40%      { transform: translate(-8px, 2px)  scale(1.15); opacity: 0.55; }
+  75%      { transform: translate(5px, -5px)  scale(0.9);  opacity: 0.35; }
+}
+
+@keyframes divider-fade-in {
+  from { opacity: 0; transform: scale(0.6); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.section-divider {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 5rem;
+  overflow: visible;
+}
+
+.section-divider__glow {
+  position: relative;
+  width: 6rem;
+  height: 3rem;
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+.section-divider.in-view .section-divider__glow {
+  animation: divider-fade-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Core orb — center */
+.section-divider__orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(1px);
+}
+
+.section-divider__orb--center {
+  width: 8px;
+  height: 8px;
+  top: 50%;
+  left: 50%;
+  margin: -4px 0 0 -4px;
+  background: radial-gradient(circle, #d6a28a 0%, #c4876b 60%, transparent 100%);
+  animation: orb-breathe 4s ease-in-out infinite;
+  filter: blur(0.5px);
+}
+
+/* Soft glow behind center */
+.section-divider__orb--glow {
+  width: 40px;
+  height: 40px;
+  top: 50%;
+  left: 50%;
+  margin: -20px 0 0 -20px;
+  background: radial-gradient(circle, rgba(214, 162, 138, 0.35) 0%, transparent 70%);
+  animation: orb-breathe 4s ease-in-out infinite;
+  filter: blur(6px);
+}
+
+/* Flanking orbs */
+.section-divider__orb--left {
+  width: 5px;
+  height: 5px;
+  top: 50%;
+  left: 18%;
+  margin-top: -2.5px;
+  background: radial-gradient(circle, #e8b5a1 0%, transparent 100%);
+  animation: orb-drift-1 6s ease-in-out infinite;
+}
+
+.section-divider__orb--right {
+  width: 5px;
+  height: 5px;
+  top: 50%;
+  right: 18%;
+  margin-top: -2.5px;
+  background: radial-gradient(circle, #e8b5a1 0%, transparent 100%);
+  animation: orb-drift-2 7s ease-in-out infinite;
+}
+
+/* Outer whisper orbs */
+.section-divider__orb--far-left {
+  width: 3px;
+  height: 3px;
+  top: 45%;
+  left: 5%;
+  background: radial-gradient(circle, #f5d4c8 0%, transparent 100%);
+  animation: orb-drift-2 8s ease-in-out infinite;
+}
+
+.section-divider__orb--far-right {
+  width: 3px;
+  height: 3px;
+  top: 55%;
+  right: 5%;
+  background: radial-gradient(circle, #f5d4c8 0%, transparent 100%);
+  animation: orb-drift-1 9s ease-in-out infinite;
+}
+
+/* Dark mode — brighter orbs against dark bg */
+:is(.dark .section-divider__orb--center) {
+  background: radial-gradient(circle, #e8b5a1 0%, #c4876b 60%, transparent 100%);
+}
+
+:is(.dark .section-divider__orb--glow) {
+  background: radial-gradient(circle, rgba(232, 181, 161, 0.25) 0%, transparent 70%);
+}
+
+:is(.dark .section-divider__orb--left),
+:is(.dark .section-divider__orb--right) {
+  background: radial-gradient(circle, #d6a28a 0%, transparent 100%);
+}
+
+:is(.dark .section-divider__orb--far-left),
+:is(.dark .section-divider__orb--far-right) {
+  background: radial-gradient(circle, #a96a50 0%, transparent 100%);
+}
+
+/* ─── Service category tabs ─── */
+.category-tab {
+  padding: 0.625rem 1.25rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.025em;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.category-tab--inactive {
+  background: #fdf6f3;
+  color: #8d5541;
+}
+
+.category-tab--inactive:hover {
+  background: #faeae4;
+}
+
+:is(.dark .category-tab--inactive) {
+  background: #292524;
+  color: #e8b5a1;
+}
+
+:is(.dark .category-tab--inactive:hover) {
+  background: #44403c;
+}
+
+.category-tab--active {
+  background: #c4876b;
+  color: #fff;
+  box-shadow: 0 4px 14px -3px rgba(196, 135, 107, 0.4);
+}
+
+/* ─── Service card image hover ─── */
+.service-card-img {
+  transition: transform 0.5s ease;
+}
+
+.service-card:hover .service-card-img {
+  transform: scale(1.05);
+}
+
+/* ─── Fade-slide transition ─── */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.35s ease;
+}
+
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-12px);
+}

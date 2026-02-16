@@ -1,0 +1,46 @@
+{
+  "mcpServers": {
+    "nuxt-ui": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://ui.nuxt.com/mcp"
+      ],
+      "disabled": false,
+      "autoApprove": [
+        "get-component",
+        "get-component-metadata",
+        "get-documentation-page",
+        "get-example",
+        "get-migration-guide",
+        "get-template",
+        "list-components",
+        "list-composables",
+        "list-documentation-pages",
+        "list-examples",
+        "list-getting-started-guides",
+        "list-templates",
+        "search-components-by-category"
+      ],
+      "disabledTools": []
+    },
+    "Context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp",
+        "--api-key",
+        "ctx7sk-8157d66e-5a10-4763-ace0-4f8652dfaff0"
+      ],
+      "env": {},
+      "disabled": false,
+      "autoApprove": [
+        "get-library-docs",
+        "resolve-library-id",
+        "query-docs"
+      ],
+      "disabledTools": []
+    }
+  }
+}
