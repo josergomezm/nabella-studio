@@ -7,9 +7,9 @@ export default defineNuxtConfig({
     compatibilityVersion: 4
   },
 
-  // GitHub Pages serves under /Nabeel788/
+  // GitHub Pages serves under /nabella-studio/
   app: {
-    baseURL: '/Nabeel788/',
+    baseURL: '/nabella-studio/',
   },
 
   css: ['~/assets/css/main.css'],
