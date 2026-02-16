@@ -68,7 +68,7 @@ export default {
       headline: 'Follow Our Work',
       title: 'See It on Instagram',
       description: 'Real clients, real results. Follow along for treatment highlights, behind-the-scenes, and body care tips.',
-      followCta: 'Follow @nabella_studio_',
+      followCta: "Follow {'@'}nabella_studio_",
     },
     cta: {
       title: 'Ready to Feel Like Yourself Again?',
@@ -172,7 +172,7 @@ export default {
       headline: 'Sigue Nuestro Trabajo',
       title: 'Míralo en Instagram',
       description: 'Clientas reales, resultados reales. Síguenos para ver tratamientos destacados, detrás de cámaras y consejos de cuidado corporal.',
-      followCta: 'Seguir @nabella_studio_',
+      followCta: "Seguir {'@'}nabella_studio_",
     },
     cta: {
       title: '¿Lista para Sentirte Como Tú Misma de Nuevo?',
