@@ -4,8 +4,8 @@ import logoSvg from '~/assets/images/logo.svg'
 import ruth1 from '~/assets/images/ruth1.png'
 import ruth2 from '~/assets/images/ruth2.png'
 
-const { t } = useI18n()
-const { categories, activeCategoryId, activeCategory, setActiveCategory } = useServices()
+const { t, tm } = useI18n()
+const { categories } = useServices()
 
 const highlights = [
   { icon: 'i-lucide-sparkles', label: t('Home.highlights.results') },
@@ -13,22 +13,39 @@ const highlights = [
   { icon: 'i-lucide-shield-check', label: t('Home.highlights.expert') },
 ]
 
-const { target: divider1, isInView: divider1Visible } = useInView()
-const { target: divider2, isInView: divider2Visible } = useInView()
-const { target: divider3, isInView: divider3Visible } = useInView()
+// Pick 4 featured services to showcase on home
+const featuredIds = ['wts', 'poc1', 'flm', 'bsp']
+const featuredServices = computed(() => {
+  const all = categories.value.flatMap(c => c.services)
+  return featuredIds.map(id => all.find(s => s.id === id)).filter(Boolean)
+})
+
+const testimonials = computed(() => tm('Home.testimonials.items') as Array<{ quote: string; name: string; service: string }>)
+
+// Pick 6 services with images for the IG-style gallery
+const instagramImages = computed(() => {
+  const all = categories.value.flatMap(c => c.services).filter(s => s.image)
+  return all.slice(0, 6)
+})
+
+const trustStats = computed(() => [
+  { value: t('Home.trust.clients'), label: t('Home.trust.clientsLabel') },
+  { value: t('Home.trust.experience'), label: t('Home.trust.experienceLabel') },
+  { value: t('Home.trust.treatments'), label: t('Home.trust.treatmentsLabel') },
+  { value: t('Home.trust.rating'), label: t('Home.trust.ratingLabel'), icon: 'i-lucide-star' },
+])
+
+const { target: trustRef, isInView: trustVisible } = useInView()
+const { target: aboutRef, isInView: aboutVisible } = useInView()
+const { target: featuredRef, isInView: featuredVisible } = useInView()
+const { target: testimonialsRef, isInView: testimonialsVisible } = useInView()
 </script>
 
 <template>
   <div>
-    <!-- ═══ Hero with Video Background ═══ -->
+    <!-- ═══ Hero ═══ -->
     <section class="hero-video-section">
-      <video
-        autoplay
-        muted
-        loop
-        playsinline
-        class="hero-video"
-      >
+      <video autoplay muted loop playsinline class="hero-video">
         <source :src="heroVideo" type="video/mp4" />
       </video>
       <div class="hero-overlay" />
@@ -61,7 +78,7 @@ const { target: divider3, isInView: divider3Visible } = useInView()
           />
           <UButton
             :label="t('Home.hero.exploreCta')"
-            to="#services"
+            to="/services"
             variant="outline"
             size="xl"
             :ui="{ base: 'text-white border-white/30 hover:bg-white/10' }"
@@ -90,274 +107,301 @@ const { target: divider3, isInView: divider3Visible } = useInView()
       </div>
     </section>
 
-    <!-- ═══ Divider 1 ═══ -->
-    <div ref="divider1" class="section-divider" :class="{ 'in-view': divider1Visible }">
-      <div class="section-divider__glow">
-        <span class="section-divider__orb section-divider__orb--glow" />
-        <span class="section-divider__orb section-divider__orb--center" />
-        <span class="section-divider__orb section-divider__orb--left" />
-        <span class="section-divider__orb section-divider__orb--right" />
-        <span class="section-divider__orb section-divider__orb--far-left" />
-        <span class="section-divider__orb section-divider__orb--far-right" />
-      </div>
-    </div>
-
-    <!-- ═══ Services ═══ -->
-    <UPageSection
-      id="services"
-      :headline="t('Services.headline')"
-      :title="t('Services.title')"
-      :description="t('Services.description')"
+    <!-- ═══ Trust Bar ═══ -->
+    <section
+      ref="trustRef"
+      class="relative bg-rose-gold-950 py-16 overflow-hidden"
     >
-      <!-- Category tabs -->
-      <div class="flex flex-wrap justify-center gap-3 mb-10">
-        <button
-          v-for="cat in categories"
-          :key="cat.id"
-          class="category-tab"
-          :class="activeCategoryId === cat.id ? 'category-tab--active' : 'category-tab--inactive'"
-          @click="setActiveCategory(cat.id)"
-        >
-          <UIcon :name="cat.icon" class="size-4 mr-1.5 inline-block align-text-bottom" />
-          {{ cat.title }}
-        </button>
+      <div class="absolute inset-0 bg-linear-to-r from-rose-gold-950 via-rose-gold-900/50 to-rose-gold-950" />
+      <div class="relative z-10 max-w-5xl mx-auto px-6">
+        <p class="text-center text-rose-gold-300 tracking-[0.2em] text-xs font-semibold uppercase mb-10">
+          {{ t('Home.trust.headline') }}
+        </p>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-8">
+          <div
+            v-for="(stat, i) in trustStats"
+            :key="stat.label"
+            class="text-center transition-all duration-700"
+            :class="trustVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'"
+            :style="{ transitionDelay: `${i * 150}ms` }"
+          >
+            <div class="flex items-center justify-center gap-1.5 mb-2">
+              <UIcon v-if="stat.icon" :name="stat.icon" class="size-5 text-rose-gold-400" />
+              <span class="text-3xl sm:text-4xl font-display text-white tracking-wide">{{ stat.value }}</span>
+            </div>
+            <p class="text-sm text-rose-gold-300/70 tracking-wide">{{ stat.label }}</p>
+          </div>
+        </div>
       </div>
+    </section>
 
-      <!-- Active category content -->
-      <Transition name="fade-slide" mode="out-in">
-        <div :key="activeCategory.id">
-          <!-- Category description -->
-          <p class="text-center text-stone-600 dark:text-stone-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-            {{ activeCategory.description }}
-          </p>
-
-          <!-- Services grid -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div
-              v-for="service in activeCategory.services"
-              :key="service.id"
-              class="service-card group rounded-xl border border-rose-gold-100 dark:border-stone-800 bg-white dark:bg-stone-900 overflow-hidden hover:border-rose-gold-300 dark:hover:border-rose-gold-700 hover:shadow-lg hover:shadow-rose-gold-100/50 dark:hover:shadow-rose-gold-950/30 transition-all duration-300"
-            >
-              <!-- Service image -->
-              <div v-if="service.image" class="aspect-[4/3] overflow-hidden bg-rose-gold-50 dark:bg-stone-800">
-                <img
-                  :src="service.image"
-                  :alt="service.name"
-                  class="service-card-img w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </div>
-
-              <div class="p-5">
-                <h3 class="font-display text-sm tracking-wide text-stone-900 dark:text-stone-100 uppercase mb-2">
-                  {{ service.name }}
-                </h3>
-                <p class="text-xs text-stone-500 dark:text-stone-400 leading-relaxed mb-4">
-                  {{ service.description }}
-                </p>
-
-                <div class="flex items-center justify-between pt-3 border-t border-stone-100 dark:border-stone-800">
-                  <div class="flex items-center gap-2 text-xs text-stone-400 dark:text-stone-500">
-                    <UIcon name="i-lucide-clock" class="size-3.5" />
-                    <span>{{ service.duration }}</span>
-                    <template v-if="service.perArea">
-                      <span class="text-stone-300 dark:text-stone-600">&middot;</span>
-                      <span>{{ t('Services.perArea') }}</span>
-                    </template>
-                  </div>
-                  <span class="text-rose-gold-500 font-semibold text-sm tabular-nums">
-                    {{ service.price }}
-                  </span>
-                </div>
-              </div>
+    <!-- ═══ About Ruth (Preview) ═══ -->
+    <section
+      ref="aboutRef"
+      class="py-20 lg:py-28 bg-white dark:bg-stone-950"
+    >
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          <!-- Photos -->
+          <div
+            class="grid grid-cols-2 gap-4 transition-all duration-1000"
+            :class="aboutVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'"
+          >
+            <div class="rounded-2xl overflow-hidden shadow-lg shadow-rose-gold-200/30 dark:shadow-rose-gold-950/40">
+              <img
+                :src="ruth1"
+                alt="Ruth Raldiris"
+                class="w-full h-full object-cover aspect-3/4"
+                loading="lazy"
+              />
+            </div>
+            <div class="rounded-2xl overflow-hidden shadow-lg shadow-rose-gold-200/30 dark:shadow-rose-gold-950/40 mt-8">
+              <img
+                :src="ruth2"
+                alt="Ruth Raldiris at Nabella Studio"
+                class="w-full h-full object-cover aspect-3/4"
+                loading="lazy"
+              />
             </div>
           </div>
 
-          <!-- Book CTA for this category -->
-          <div class="text-center mt-10">
+          <!-- Bio -->
+          <div
+            class="transition-all duration-1000 delay-200"
+            :class="aboutVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'"
+          >
+            <p class="text-rose-gold-500 tracking-[0.2em] text-xs font-semibold uppercase mb-4">
+              {{ t('Home.about.headline') }}
+            </p>
+            <h2 class="font-display text-3xl sm:text-4xl tracking-wider uppercase text-stone-900 dark:text-stone-100 mb-2">
+              {{ t('Home.about.title') }}
+            </h2>
+            <p class="text-rose-gold-500 text-sm tracking-wide mb-6">
+              {{ t('Home.about.subtitle') }}
+            </p>
+            <div class="space-y-4 text-stone-600 dark:text-stone-400 leading-relaxed">
+              <p>{{ t('Home.about.p1') }}</p>
+              <p>{{ t('Home.about.p2') }}</p>
+            </div>
             <UButton
-              :label="t('Services.bookService')"
-              to="/book"
-              size="lg"
-              icon="i-lucide-calendar"
+              :label="t('Home.about.learnMore')"
+              to="/about"
               variant="outline"
+              size="lg"
+              icon="i-lucide-arrow-right"
+              trailing
+              class="mt-8"
             />
           </div>
         </div>
-      </Transition>
-    </UPageSection>
-
-    <!-- ═══ Divider 2 ═══ -->
-    <div ref="divider2" class="section-divider" :class="{ 'in-view': divider2Visible }">
-      <div class="section-divider__glow">
-        <span class="section-divider__orb section-divider__orb--glow" />
-        <span class="section-divider__orb section-divider__orb--center" />
-        <span class="section-divider__orb section-divider__orb--left" />
-        <span class="section-divider__orb section-divider__orb--right" />
-        <span class="section-divider__orb section-divider__orb--far-left" />
-        <span class="section-divider__orb section-divider__orb--far-right" />
       </div>
-    </div>
+    </section>
 
-    <!-- ═══ About ═══ -->
-    <UPageSection
-      id="about"
-      :headline="t('Home.about.headline')"
-      :title="t('Home.about.title')"
-      :description="t('Home.about.subtitle')"
-      :ui="{
-        root: 'bg-white dark:bg-stone-950',
-      }"
+    <!-- ═══ Featured Services ═══ -->
+    <section
+      ref="featuredRef"
+      class="py-20 lg:py-28 bg-rose-gold-50/30 dark:bg-stone-900/50"
     >
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-        <!-- Photos -->
-        <div class="grid grid-cols-2 gap-4">
-          <div class="rounded-2xl overflow-hidden shadow-lg shadow-rose-gold-200/30 dark:shadow-rose-gold-950/40">
-            <img
-              :src="ruth1"
-              alt="Ruth Raldiris"
-              class="w-full h-full object-cover aspect-[3/4]"
-              loading="lazy"
-            />
-          </div>
-          <div class="rounded-2xl overflow-hidden shadow-lg shadow-rose-gold-200/30 dark:shadow-rose-gold-950/40 mt-8">
-            <img
-              :src="ruth2"
-              alt="Ruth Raldiris at Nabella Studio"
-              class="w-full h-full object-cover aspect-[3/4]"
-              loading="lazy"
-            />
-          </div>
-        </div>
-
-        <!-- Bio text -->
-        <div class="space-y-4 text-stone-600 dark:text-stone-400 leading-relaxed">
-          <p>{{ t('Home.about.p1') }}</p>
-          <p>{{ t('Home.about.p2') }}</p>
-          <p class="text-sm text-stone-500 dark:text-stone-500 italic">
-            {{ t('Home.about.p3') }}
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="text-center mb-14">
+          <p class="text-rose-gold-500 tracking-[0.2em] text-xs font-semibold uppercase mb-3">
+            {{ t('Home.featured.headline') }}
+          </p>
+          <h2 class="font-display text-3xl sm:text-4xl tracking-wider uppercase text-stone-900 dark:text-stone-100 mb-4">
+            {{ t('Home.featured.title') }}
+          </h2>
+          <p class="text-stone-500 dark:text-stone-400 max-w-2xl mx-auto leading-relaxed">
+            {{ t('Home.featured.description') }}
           </p>
         </div>
-      </div>
-    </UPageSection>
 
-    <!-- ═══ Divider 3 ═══ -->
-    <div ref="divider3" class="section-divider" :class="{ 'in-view': divider3Visible }">
-      <div class="section-divider__glow">
-        <span class="section-divider__orb section-divider__orb--glow" />
-        <span class="section-divider__orb section-divider__orb--center" />
-        <span class="section-divider__orb section-divider__orb--left" />
-        <span class="section-divider__orb section-divider__orb--right" />
-        <span class="section-divider__orb section-divider__orb--far-left" />
-        <span class="section-divider__orb section-divider__orb--far-right" />
-      </div>
-    </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <NuxtLink
+            v-for="(service, i) in featuredServices"
+            :key="service!.id"
+            :to="`/services/${service!.id}`"
+            class="group rounded-xl border border-rose-gold-100 dark:border-stone-800 bg-white dark:bg-stone-900 overflow-hidden hover:border-rose-gold-300 dark:hover:border-rose-gold-700 hover:shadow-lg hover:shadow-rose-gold-100/50 dark:hover:shadow-rose-gold-950/30 transition-all duration-500"
+            :class="featuredVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'"
+            :style="{ transitionDelay: `${i * 100}ms` }"
+          >
+            <div v-if="service!.image" class="aspect-4/3 overflow-hidden bg-rose-gold-50 dark:bg-stone-800">
+              <img
+                :src="service!.image"
+                :alt="service!.name"
+                class="service-card-img w-full h-full object-cover"
+                loading="lazy"
+              />
+            </div>
+            <div class="p-5">
+              <h3 class="font-display text-sm tracking-wide text-stone-900 dark:text-stone-100 uppercase mb-2">
+                {{ service!.name }}
+              </h3>
+              <p class="text-xs text-stone-500 dark:text-stone-400 leading-relaxed mb-4 line-clamp-3">
+                {{ service!.description }}
+              </p>
+              <div class="flex items-center justify-between pt-3 border-t border-stone-100 dark:border-stone-800">
+                <div class="flex items-center gap-2 text-xs text-stone-400 dark:text-stone-500">
+                  <UIcon name="i-lucide-clock" class="size-3.5" />
+                  <span>{{ service!.duration }}</span>
+                </div>
+                <span class="text-rose-gold-500 font-semibold text-sm tabular-nums">
+                  {{ service!.price }}
+                </span>
+              </div>
+            </div>
+          </NuxtLink>
+        </div>
 
-    <!-- ═══ CTA + Footer ═══ -->
-    <footer id="contact" class="bg-rose-gold-950">
-      <!-- CTA -->
-      <div class="text-center px-6 pt-20 pb-16">
+        <div class="text-center mt-12">
+          <UButton
+            :label="t('Home.featured.viewAll')"
+            to="/services"
+            variant="outline"
+            size="lg"
+            icon="i-lucide-arrow-right"
+            trailing
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ Testimonials ═══ -->
+    <section
+      ref="testimonialsRef"
+      class="py-20 lg:py-28 bg-white dark:bg-stone-950"
+    >
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="text-center mb-14">
+          <p class="text-rose-gold-500 tracking-[0.2em] text-xs font-semibold uppercase mb-3">
+            {{ t('Home.testimonials.headline') }}
+          </p>
+          <h2 class="font-display text-3xl sm:text-4xl tracking-wider uppercase text-stone-900 dark:text-stone-100 mb-4">
+            {{ t('Home.testimonials.title') }}
+          </h2>
+          <p class="text-stone-500 dark:text-stone-400 max-w-2xl mx-auto leading-relaxed">
+            {{ t('Home.testimonials.description') }}
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div
+            v-for="(item, i) in testimonials"
+            :key="i"
+            class="relative p-6 sm:p-8 rounded-2xl border border-rose-gold-100 dark:border-stone-800 bg-rose-gold-50/30 dark:bg-stone-900/50 transition-all duration-700"
+            :class="testimonialsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'"
+            :style="{ transitionDelay: `${i * 120}ms` }"
+          >
+            <!-- Quote mark -->
+            <div class="absolute top-4 right-6 text-rose-gold-200 dark:text-rose-gold-800/50 text-5xl font-serif leading-none select-none" aria-hidden="true">
+              &ldquo;
+            </div>
+
+            <div class="flex gap-1 mb-4">
+              <UIcon v-for="n in 5" :key="n" name="heroicons:star-20-solid" class="size-4 text-rose-gold-400" />
+            </div>
+
+            <p class="text-stone-700 dark:text-stone-300 leading-relaxed mb-6 italic">
+              &ldquo;{{ item.quote }}&rdquo;
+            </p>
+
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-rose-gold-200 dark:bg-rose-gold-800 flex items-center justify-center">
+                <span class="text-sm font-semibold text-rose-gold-700 dark:text-rose-gold-200">
+                  {{ item.name.charAt(0) }}
+                </span>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-stone-900 dark:text-stone-100">{{ item.name }}</p>
+                <p class="text-xs text-rose-gold-500">{{ item.service }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ Instagram Gallery ═══ -->
+    <section class="py-20 lg:py-28 bg-rose-gold-50/30 dark:bg-stone-900/50">
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="text-center mb-12">
+          <p class="text-rose-gold-500 tracking-[0.2em] text-xs font-semibold uppercase mb-3">
+            {{ t('Home.instagram.headline') }}
+          </p>
+          <h2 class="font-display text-3xl sm:text-4xl tracking-wider uppercase text-stone-900 dark:text-stone-100 mb-4">
+            {{ t('Home.instagram.title') }}
+          </h2>
+          <p class="text-stone-500 dark:text-stone-400 max-w-2xl mx-auto leading-relaxed">
+            {{ t('Home.instagram.description') }}
+          </p>
+        </div>
+
+        <!-- Image grid linking to Instagram -->
+        <a
+          href="https://www.instagram.com/nabella_studio_/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 group"
+          aria-label="Visit Nabella Studio on Instagram"
+        >
+          <div
+            v-for="service in instagramImages"
+            :key="service.id"
+            class="aspect-square overflow-hidden rounded-lg bg-rose-gold-100 dark:bg-stone-800"
+          >
+            <img
+              :src="service.image!"
+              :alt="service.name"
+              class="w-full h-full object-cover transition-all duration-500 group-hover:brightness-90"
+              loading="lazy"
+            />
+          </div>
+        </a>
+
+        <div class="text-center mt-8">
+          <UButton
+            :label="t('Home.instagram.followCta')"
+            to="https://www.instagram.com/nabella_studio_/"
+            target="_blank"
+            variant="outline"
+            size="lg"
+            icon="i-lucide-instagram"
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ CTA ═══ -->
+    <section class="relative py-20 lg:py-28 bg-rose-gold-950 overflow-hidden">
+      <div class="absolute inset-0 bg-linear-to-br from-rose-gold-950 via-rose-gold-900/30 to-rose-gold-950" />
+      <div class="relative z-10 text-center px-6 max-w-2xl mx-auto">
         <h2 class="font-display text-white text-3xl sm:text-4xl tracking-widest uppercase mb-4">
           {{ t('Home.cta.title') }}
         </h2>
-        <p class="text-rose-gold-200/80 max-w-xl mx-auto leading-relaxed mb-8">
+        <p class="text-rose-gold-200/80 leading-relaxed mb-10">
           {{ t('Home.cta.description') }}
         </p>
-        <UButton
-          :label="t('Home.cta.bookCta')"
-          to="/book"
-          size="xl"
-          icon="i-lucide-calendar"
-          color="neutral"
-          variant="solid"
-        />
-      </div>
-
-      <!-- Soft separator -->
-      <div class="mx-auto max-w-5xl px-6">
-        <div class="h-px bg-gradient-to-r from-transparent via-rose-gold-700/40 to-transparent" />
-      </div>
-
-      <!-- Footer columns -->
-      <div class="mx-auto max-w-5xl px-6 py-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
-        <!-- Hours -->
-        <div>
-          <h3 class="font-display text-rose-gold-300 text-sm tracking-[0.2em] uppercase mb-5">
-            <UIcon name="i-lucide-clock" class="size-4 mr-2 inline-block align-text-bottom" />
-            {{ t('Home.footer.hours') }}
-          </h3>
-          <dl class="space-y-2">
-            <div v-for="day in ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']" :key="day" class="flex justify-between text-sm">
-              <dt class="text-rose-gold-300/70">{{ t(`Home.footer.days.${day}`) }}</dt>
-              <dd :class="t(`Home.footer.hours_data.${day}`) === 'Closed' ? 'text-rose-gold-500/50' : 'text-rose-gold-100/90 font-medium'">
-                {{ t(`Home.footer.hours_data.${day}`) }}
-              </dd>
-            </div>
-          </dl>
-        </div>
-
-        <!-- Location -->
-        <div>
-          <h3 class="font-display text-rose-gold-300 text-sm tracking-[0.2em] uppercase mb-5">
-            <UIcon name="i-lucide-map-pin" class="size-4 mr-2 inline-block align-text-bottom" />
-            {{ t('Home.footer.location') }}
-          </h3>
-          <address class="not-italic space-y-1 text-sm text-rose-gold-200/70 leading-relaxed">
-            <p class="text-rose-gold-100/90 font-medium">Nabella Studio</p>
-            <p>{{ t('Home.footer.address') }}</p>
-            <p>{{ t('Home.footer.city') }}</p>
-          </address>
+        <div class="flex flex-wrap items-center justify-center gap-4">
           <UButton
-            label="Get Directions"
-            to="https://maps.google.com/?q=8412+Acme+Way+Louisville+KY+40219"
+            :label="t('Home.cta.bookCta')"
+            to="/book"
+            size="xl"
+            icon="i-lucide-calendar"
+            color="neutral"
+            variant="solid"
+          />
+          <UButton
+            icon="i-lucide-instagram"
+            to="https://www.instagram.com/nabella_studio_/"
             target="_blank"
-            variant="link"
-            icon="i-lucide-navigation"
-            size="sm"
-            class="mt-4 text-rose-gold-400 hover:text-rose-gold-300 px-0"
+            variant="outline"
+            size="xl"
+            aria-label="Instagram"
+            :ui="{ base: 'text-rose-gold-300 border-rose-gold-700/40 hover:bg-rose-gold-800/30' }"
           />
         </div>
+      </div>
+    </section>
 
-        <!-- Connect -->
-        <div>
-          <h3 class="font-display text-rose-gold-300 text-sm tracking-[0.2em] uppercase mb-5">
-            <UIcon name="i-lucide-heart" class="size-4 mr-2 inline-block align-text-bottom" />
-            {{ t('Home.footer.connect') }}
-          </h3>
-          <div class="flex gap-3">
-            <UButton
-              icon="i-lucide-instagram"
-              color="neutral"
-              variant="ghost"
-              to="https://www.instagram.com/nabella_studio_/"
-              target="_blank"
-              aria-label="Instagram"
-              :ui="{ base: 'text-rose-gold-300 hover:text-white hover:bg-rose-gold-800/50' }"
-            />
-          </div>
-          <div class="mt-6">
-            <UButton
-              label="Book an Appointment"
-              to="/book"
-              size="sm"
-              icon="i-lucide-calendar"
-              :ui="{ base: 'text-rose-gold-300 hover:text-white hover:bg-rose-gold-800/50' }"
-              variant="ghost"
-              class="px-0"
-            />
-          </div>
-        </div>
-      </div>
-
-      <!-- Bottom bar -->
-      <div class="mx-auto max-w-5xl px-6">
-        <div class="h-px bg-gradient-to-r from-transparent via-rose-gold-800/30 to-transparent" />
-      </div>
-      <div class="text-center py-6 px-6">
-        <p class="text-xs text-rose-gold-400/50 tracking-wide">
-          &copy; {{ new Date().getFullYear() }} {{ t('Home.footer.rights') }}
-        </p>
-      </div>
-    </footer>
+    <!-- ═══ Footer is in layout ═══ -->
   </div>
 </template>

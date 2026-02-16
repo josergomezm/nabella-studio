@@ -4,6 +4,11 @@ import Layout from './locales/components/Layout'
 
 // Page translations
 import Home from './locales/pages/Home'
+import About from './locales/pages/About'
+import Results from './locales/pages/Results'
+import ServicesPage from './locales/pages/Services'
+import ServiceDetail from './locales/pages/ServiceDetail'
+import Contact from './locales/pages/Contact'
 import Book from './locales/pages/Book'
 
 // Data translations
@@ -22,6 +27,11 @@ export default defineI18nConfig(() => {
 
         // Pages
         Home: Home.en,
+        About: About.en,
+        Results: Results.en,
+        ServicesPage: ServicesPage.en,
+        ServiceDetail: ServiceDetail.en,
+        Contact: Contact.en,
         Book: Book.en,
 
         // Data
@@ -34,6 +44,11 @@ export default defineI18nConfig(() => {
 
         // Pages
         Home: Home.es,
+        About: About.es,
+        Results: Results.es,
+        ServicesPage: ServicesPage.es,
+        ServiceDetail: ServiceDetail.es,
+        Contact: Contact.es,
         Book: Book.es,
 
         // Data

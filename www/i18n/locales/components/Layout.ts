@@ -3,6 +3,7 @@ export default {
     nav: {
       services: 'Services',
       about: 'About',
+      results: 'Results',
       contact: 'Contact',
     },
     bookNow: 'Book Now',
@@ -11,6 +12,7 @@ export default {
     nav: {
       services: 'Servicios',
       about: 'Nosotros',
+      results: 'Resultados',
       contact: 'Contacto',
     },
     bookNow: 'Reservar',
